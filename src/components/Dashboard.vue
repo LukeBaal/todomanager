@@ -1,10 +1,11 @@
 <template>
-  <v-container>
+  <v-container align-center>
     <v-layout>
       <v-flex sm8 offset-sm2 md6 offset-md-3>
         <v-card>
           <v-card-text>
-            <v-list two-line>
+            <v-list two-line subheader>
+              <v-subheader v-if="today != null">Today</v-subheader>
               <div v-for="(item, index) in items" :key="item._id">
                 <v-list-tile>
                   <v-list-tile-content>
@@ -32,7 +33,8 @@
                     </v-tooltip>
                   </v-list-tile-action>
                 </v-list-tile>
-                <v-divider v-if="index != items.length-1"></v-divider>
+                <!-- <v-divider v-if="index != items.length-1"></v-divider> -->
+                <v-divider v-if="daysLeft(item.date) === 0 && index != items.length -1 && daysLeft(items[index+1].date) > 0"></v-divider>
               </div>
             </v-list>
               <v-btn class="red"
@@ -63,7 +65,8 @@ export default {
   name: 'dashboard',
   data () {
     return {
-      items: []
+      items: [],
+      today: null
     }
   },
   created () {
@@ -75,11 +78,11 @@ export default {
         sort: ['date']
       })
       .then(results => {
-        results.docs.forEach(doc => {
+        results.docs.forEach((doc, index) => {
           if (doc.name) {
             const date = new Date(doc.date)
             date.setHours(date.getHours() + 4)
-            this.items.push({
+            const data = {
               _id: doc._id,
               name: doc.name,
               date: date.toLocaleDateString('en-US', {
@@ -89,7 +92,11 @@ export default {
                 day: 'numeric'
               }),
               time: date.toLocaleTimeString('en-US')
-            })
+            }
+            if (!this.today && this.daysLeft(data.date) === 0) {
+              this.today = index
+            }
+            this.items.push(data)
           }
         })
       })
@@ -110,6 +117,14 @@ export default {
           })
           .catch(err => console.log(err))
       }
+    },
+    daysLeft (dueDate) {
+      const today = new Date()
+      const due = new Date(dueDate)
+      const day = 1000 * 60 * 60 * 24
+
+      const remaining = due - today
+      return Math.ceil(remaining / day)
     }
   }
 }
