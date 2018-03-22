@@ -6,7 +6,14 @@
       </router-link>
       <span>Home</span>
     </v-tooltip>
-    <v-toolbar-title>Todo</v-toolbar-title>
+    <v-toolbar-title>
+      {{new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+        })
+      }}
+    </v-toolbar-title>
   </v-toolbar>
 </template>
 
