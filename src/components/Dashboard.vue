@@ -5,10 +5,17 @@
         <v-card>
           <v-card-text>
             <v-list two-line subheader>
-              <v-subheader v-if="today != null">Today</v-subheader>
               <div v-for="(item, index) in items" :key="item._id">
-                <v-subheader v-if="today != null && index === today+1 && tomorrow != null">Tomorrow</v-subheader>
-                <v-subheader v-else-if="today === null && index === 0 && tomorrow != null">Tomorrow</v-subheader>
+                <v-divider v-if="today !== null && today !== 0 && index === today"></v-divider>
+                <v-subheader v-if="today !== null && index === today">Today</v-subheader>
+                <div v-if="tomorrow !== null && index === tomorrow">
+                  <v-divider></v-divider>
+                  <v-subheader>Tomorrow</v-subheader>
+                </div>
+                <div v-if="future !== null && index === future">
+                  <v-divider></v-divider>
+                  <v-subheader>Future</v-subheader>
+                </div>
                 <v-list-tile>
                   <v-list-tile-content>
                     <v-list-tile-title>
@@ -36,8 +43,6 @@
                   </v-list-tile-action>
                 </v-list-tile>
                 <!-- <v-divider v-if="index != items.length-1"></v-divider> -->
-                <v-divider v-if="daysLeft(item.date) === 0 && index != items.length -1 && daysLeft(items[index+1].date) > 0"></v-divider>
-                <v-divider v-else-if="daysLeft(item.date) === 1 && index != items.length -1 && daysLeft(items[index+1].date) > 1"></v-divider>
               </div>
             </v-list>
               <v-btn class="red"
@@ -70,7 +75,8 @@ export default {
     return {
       items: [],
       today: null,
-      tomorrow: null
+      tomorrow: null,
+      future: null
     }
   },
   created () {
@@ -97,16 +103,11 @@ export default {
               }),
               time: date.toLocaleTimeString('en-US')
             }
-            const days = this.daysLeft(data.date)
-            if (!this.today && days === 0) {
-              this.today = index
-            } else if (!this.tomorrow && days === 1) {
-              this.tomorrow = index
-            }
             this.items.push(data)
           }
         })
       })
+      .then(() => this.getCategories())
       .catch(err => console.log(err))
   },
   watch: {
@@ -121,6 +122,7 @@ export default {
           })
           .then(() => {
             this.items.splice(index, 1)
+            this.getCategories()
           })
           .catch(err => console.log(err))
       }
@@ -132,6 +134,22 @@ export default {
 
       const remaining = due - today
       return Math.ceil(remaining / day)
+    },
+    getCategories () {
+      // Reset indexs
+      this.today = null
+      this.tomorrow = null
+      this.future = null
+      this.items.forEach((item, index) => {
+        const days = this.daysLeft(item.date)
+        if (this.today === null && days === 0) {
+          this.today = index
+        } else if (this.tomorrow === null && days === 1) {
+          this.tomorrow = index
+        } else if (this.future === null && days > 1) {
+          this.future = index
+        }
+      })
     }
   }
 }
