@@ -110,9 +110,6 @@ export default {
       .then(() => this.getCategories())
       .catch(err => console.log(err))
   },
-  watch: {
-    '$route': 'fetchData'
-  },
   methods: {
     removeItem (_id, index) {
       if (confirm('Are you sure?')) {
