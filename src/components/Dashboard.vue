@@ -21,7 +21,7 @@
                     <v-list-tile-title>
                       {{ item.name }}
                     </v-list-tile-title>
-                      {{ (today != null && index > today) ? item.date+',' : ''}} {{ item.time }}
+                      {{ (index >= future) ? item.date+',' : ''}} {{ item.time }}
                   </v-list-tile-content>
                   <v-list-tile-action>
                     <v-tooltip bottom>
